@@ -65,7 +65,7 @@ func (q *Queries) ListParticipant(ctx context.Context, arg ListParticipantParams
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Participant
+	items := []Participant{}
 	for rows.Next() {
 		var i Participant
 		if err := rows.Scan(
