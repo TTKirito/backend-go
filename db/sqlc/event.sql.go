@@ -31,7 +31,7 @@ type CreateEventParams struct {
 	Title      sql.NullString `json:"title"`
 	StartTime  time.Time      `json:"start_time"`
 	EndTime    time.Time      `json:"end_time"`
-	IsEmegency interface{}    `json:"is_emegency"`
+	IsEmegency bool           `json:"is_emegency"`
 	Owner      int64          `json:"owner"`
 	Note       sql.NullString `json:"note"`
 	Type       EventTypes     `json:"type"`
@@ -179,7 +179,7 @@ type UpdateEventParams struct {
 	Title      sql.NullString `json:"title"`
 	StartTime  time.Time      `json:"start_time"`
 	EndTime    time.Time      `json:"end_time"`
-	IsEmegency interface{}    `json:"is_emegency"`
+	IsEmegency bool           `json:"is_emegency"`
 	Owner      int64          `json:"owner"`
 	Note       sql.NullString `json:"note"`
 	Type       EventTypes     `json:"type"`
