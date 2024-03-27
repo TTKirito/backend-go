@@ -7,19 +7,24 @@ import (
 	"time"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	CreateEventTx(ctx context.Context, arg CreateEventTxParams) (CreateEventTxResult, error)
+}
+
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) *SQLStore {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 
 	if err != nil {
@@ -59,7 +64,7 @@ type CreateEventTxResult struct {
 	Participants []Participant `json:"participants"`
 }
 
-func (store *Store) CreateEventTx(ctx context.Context, arg CreateEventTxParams) (CreateEventTxResult, error) {
+func (store *SQLStore) CreateEventTx(ctx context.Context, arg CreateEventTxParams) (CreateEventTxResult, error) {
 	var result CreateEventTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
