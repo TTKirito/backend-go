@@ -77,3 +77,16 @@ func RandomVisitType() string {
 	n := len(visitTypes)
 	return visitTypes[rand.Intn(n)]
 }
+
+type Coordinates struct {
+	Lat    string
+	Long   string
+	Street string
+}
+
+func RandomLatLong() Coordinates {
+	coordinates := []Coordinates{{"14.0583", "1082772", "Hanoi"}, {"15.8700", "100.9925", "Thailand"}}
+	n := len(coordinates)
+
+	return coordinates[rand.Intn(n)]
+}
