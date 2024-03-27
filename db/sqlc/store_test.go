@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"testing"
 	"time"
 
@@ -80,7 +79,6 @@ func TestCreateEventTx(t *testing.T) {
 		require.NotZero(t, location.CreatedAt)
 
 		participants := result.Participants
-		fmt.Println(participants)
 		for _, participant := range participants {
 			require.Equal(t, participant.Event, event.ID)
 			require.NotZero(t, participant.ID)

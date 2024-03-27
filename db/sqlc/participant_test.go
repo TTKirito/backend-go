@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -58,7 +57,6 @@ func TestListParticipant(t *testing.T) {
 	}
 
 	participants, err := testQueries.ListParticipant(context.Background(), arg)
-	fmt.Println(participants)
 	require.NoError(t, err)
 	require.Len(t, participants, 5)
 
