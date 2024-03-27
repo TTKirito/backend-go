@@ -40,7 +40,7 @@ CREATE TABLE events (
     "title" varchar,
     "start_time" timestamptz NOT NULL,
     "end_time" timestamptz NOT NULL,
-    "is_emegency" BIT NOT NULL DEFAULT '0',
+    "is_emegency" boolean NOT NULL DEFAULT false,
     "owner" bigserial NOT NULL,
     "note" varchar,
     "type" event_types NOT NULL,

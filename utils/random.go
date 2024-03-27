@@ -50,9 +50,30 @@ func RandomDob() time.Time {
 	return time.Now().UTC()
 }
 
+func RandomTime() time.Time {
+	return time.Now().UTC()
+}
+
 func RandomStatus() string {
 	status := []string{"Active", "Inactive"}
 	n := len(status)
 
 	return status[rand.Intn(n)]
+}
+
+func RandomEmegency() bool {
+	return rand.Intn(2) == 1
+}
+
+func RandomEventType() string {
+	eventTypes := []string{"Event", "Meeting"}
+	n := len(eventTypes)
+
+	return eventTypes[rand.Intn(n)]
+}
+
+func RandomVisitType() string {
+	visitTypes := []string{"Office", "Online"}
+	n := len(visitTypes)
+	return visitTypes[rand.Intn(n)]
 }
