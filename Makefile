@@ -2,8 +2,12 @@ migrate:
 	migrate create -ext sql -dir db/migration -seq add_user
 migrateup:
 	migrate -path db/migration -database "postgres://postgres:changeme@localhost:5434/postgres?sslmode=disable" --verbose up
+migrateup1: 
+	migrate -path db/migration -database "postgres://postgres:changeme@localhost:5433/postgres?sslmode=disable" --verbose up 1
 migratedown:
 	migrate -path db/migration -database "postgres://postgres:changeme@localhost:5434/postgres?sslmode=disable" --verbose down
+migratedown1:
+	migrate -path db/migration -database "postgres://postgres:changeme@localhost:5433/postgres?sslmode=disable" --verbose down 1
 sqlc:
 	sqlc generate
 test:
