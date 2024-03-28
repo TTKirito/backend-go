@@ -24,6 +24,8 @@ func NewServer(store db.Store) *Server {
 		v.RegisterValidation("visitType", validVisitType)
 	}
 
+	route.POST("/users", server.createUser)
+
 	route.POST("/accounts", server.createAccount)
 	route.GET("/accounts/:id", server.getAccount)
 	route.GET("/accounts", server.listAccount)
