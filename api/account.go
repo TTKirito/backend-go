@@ -11,10 +11,10 @@ import (
 
 type createAccountRequest struct {
 	Owner    string    `json:"owner" binding:"required"`
-	Position string    `json:"position" binding:"required,oneof=Design Develop"`
-	Gender   string    `json:"gender" binding:"required,oneof=Man Women"`
+	Position string    `json:"position" binding:"required,oneof=Design Develop,position"`
+	Gender   string    `json:"gender" binding:"required,oneof=Man Women,gender"`
 	Dob      time.Time `json:"dob" binding:"required"`
-	Status   string    `json:"status" binding:"required,oneof=Active Inactive"`
+	Status   string    `json:"status" binding:"required,oneof=Active Inactive,status"`
 }
 
 func (server *Server) createAccount(ctx *gin.Context) {
