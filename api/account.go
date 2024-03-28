@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
 	db "github.com/TTKirito/backend-go/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type createAccountRequest struct {
@@ -36,6 +38,16 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	account, err := server.store.CreateAccount(ctx, arg)
 
 	if err != nil {
+		if pgErr, ok := err.(*pq.Error); ok {
+			log.Println(pgErr.Code.Name())
+			switch pgErr.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+
+		}
+
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
