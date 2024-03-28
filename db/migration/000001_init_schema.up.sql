@@ -38,8 +38,8 @@ CREATE TYPE "visit_types" as ENUM (
 CREATE TABLE events (
     "id" bigserial PRIMARY KEY,
     "title" varchar,
-    "start_time" timestamptz NOT NULL,
-    "end_time" timestamptz NOT NULL,
+    "start_time" bigserial NOT NULL,
+    "end_time" bigserial NOT NULL,
     "is_emegency" boolean NOT NULL DEFAULT false,
     "owner" bigserial NOT NULL,
     "note" varchar,

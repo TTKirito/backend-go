@@ -20,12 +20,17 @@ func NewServer(store db.Store) *Server {
 		v.RegisterValidation("status", validStatus)
 		v.RegisterValidation("position", validPosition)
 		v.RegisterValidation("gender", validGender)
+		v.RegisterValidation("eventType", validEventType)
+		v.RegisterValidation("visitType", validVisitType)
 	}
 
 	route.POST("/accounts", server.createAccount)
 	route.GET("/accounts/:id", server.getAccount)
 	route.GET("/accounts", server.listAccount)
 
+	route.POST("/events", server.createEvent)
+	route.GET("/events/:id", server.getEvent)
+	route.GET("/events", server.listEvent)
 	server.route = route
 
 	return server

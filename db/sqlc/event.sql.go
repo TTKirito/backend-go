@@ -8,7 +8,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
 )
 
 const createEvent = `-- name: CreateEvent :one
@@ -29,8 +28,8 @@ INSERT INTO events (
 
 type CreateEventParams struct {
 	Title      sql.NullString `json:"title"`
-	StartTime  time.Time      `json:"start_time"`
-	EndTime    time.Time      `json:"end_time"`
+	StartTime  int64          `json:"start_time"`
+	EndTime    int64          `json:"end_time"`
 	IsEmegency bool           `json:"is_emegency"`
 	Owner      int64          `json:"owner"`
 	Note       sql.NullString `json:"note"`
@@ -113,10 +112,10 @@ OFFSET $4
 `
 
 type ListEventParams struct {
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
-	Limit     int32     `json:"limit"`
-	Offset    int32     `json:"offset"`
+	StartTime int64 `json:"start_time"`
+	EndTime   int64 `json:"end_time"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
 func (q *Queries) ListEvent(ctx context.Context, arg ListEventParams) ([]Event, error) {
@@ -177,8 +176,8 @@ RETURNING id, title, start_time, end_time, is_emegency, owner, note, type, visit
 type UpdateEventParams struct {
 	ID         int64          `json:"id"`
 	Title      sql.NullString `json:"title"`
-	StartTime  time.Time      `json:"start_time"`
-	EndTime    time.Time      `json:"end_time"`
+	StartTime  int64          `json:"start_time"`
+	EndTime    int64          `json:"end_time"`
 	IsEmegency bool           `json:"is_emegency"`
 	Owner      int64          `json:"owner"`
 	Note       sql.NullString `json:"note"`

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 )
 
 type Store interface {
@@ -46,8 +45,8 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) erro
 
 type CreateEventTxParams struct {
 	Title        string        `json:"title"`
-	StartTime    time.Time     `json:"start_time"`
-	EndTime      time.Time     `json:"end_time"`
+	StartTime    int64         `json:"start_time"`
+	EndTime      int64         `json:"end_time"`
 	IsEmegency   bool          `json:"is_emegency"`
 	Owner        int64         `json:"owner"`
 	Note         string        `json:"note"`

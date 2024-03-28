@@ -26,3 +26,17 @@ var validGender validator.Func = func(fieldLevel validator.FieldLevel) bool {
 	}
 	return false
 }
+
+var validEventType validator.Func = func(fieldLevel validator.FieldLevel) bool {
+	if eventType, ok := fieldLevel.Field().Interface().(string); ok {
+		return utils.IsSupportedEventType(eventType)
+	}
+	return false
+}
+
+var validVisitType validator.Func = func(fieldLevel validator.FieldLevel) bool {
+	if visitType, ok := fieldLevel.Field().Interface().(string); ok {
+		return utils.IsSupportedVisitType(visitType)
+	}
+	return false
+}

@@ -7,6 +7,10 @@ const (
 	Design   = "Design"
 	Man      = "Man"
 	Women    = "Women"
+	Meeting  = "Meeting"
+	Event    = "Event"
+	Office   = "Office"
+	Online   = "Online"
 )
 
 func IsSupportedStatus(status string) bool {
@@ -32,5 +36,21 @@ func IsSupportedGender(gender string) bool {
 		return true
 	}
 
+	return false
+}
+
+func IsSupportedEventType(eventType string) bool {
+	switch eventType {
+	case Meeting, Event:
+		return true
+	}
+	return false
+}
+
+func IsSupportedVisitType(visitType string) bool {
+	switch visitType {
+	case Office, Online:
+		return true
+	}
 	return false
 }

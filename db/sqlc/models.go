@@ -235,8 +235,8 @@ type Event struct {
 	ID    int64          `json:"id"`
 	Title sql.NullString `json:"title"`
 	// required
-	StartTime  time.Time      `json:"start_time"`
-	EndTime    time.Time      `json:"end_time"`
+	StartTime  int64          `json:"start_time"`
+	EndTime    int64          `json:"end_time"`
 	IsEmegency bool           `json:"is_emegency"`
 	Owner      int64          `json:"owner"`
 	Note       sql.NullString `json:"note"`

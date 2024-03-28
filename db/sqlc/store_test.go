@@ -19,8 +19,8 @@ func TestCreateEventTx(t *testing.T) {
 
 	arg := CreateEventTxParams{
 		Title:      utils.RandomString(12),
-		StartTime:  utils.RandomTime(),
-		EndTime:    utils.RandomTime().Add(30 * time.Minute),
+		StartTime:  utils.RandomTime().Unix(),
+		EndTime:    utils.RandomTime().Add(30 * time.Minute).Unix(),
 		IsEmegency: utils.RandomEmegency(),
 		Owner:      account.ID,
 		Note:       utils.RandomString(12),
@@ -58,8 +58,8 @@ func TestCreateEventTx(t *testing.T) {
 
 		event := result.Event
 		require.Equal(t, event.Title, sql.NullString{String: arg.Title, Valid: true})
-		require.WithinDuration(t, event.StartTime, arg.StartTime, time.Second)
-		require.WithinDuration(t, event.EndTime, arg.EndTime, time.Second)
+		require.Equal(t, event.StartTime, arg.StartTime)
+		require.Equal(t, event.EndTime, arg.EndTime)
 		require.Equal(t, event.IsEmegency, arg.IsEmegency)
 		require.Equal(t, event.Owner, arg.Owner)
 		require.Equal(t, event.Note, sql.NullString{String: arg.Note, Valid: true})

@@ -14,8 +14,8 @@ func createRandomEvent(t *testing.T) Event {
 	account := createRandomAccount(t)
 	arg := CreateEventParams{
 		Title:      sql.NullString{String: utils.RandomString(12), Valid: true},
-		StartTime:  utils.RandomTime(),
-		EndTime:    utils.RandomTime().Add(30 * time.Minute),
+		StartTime:  utils.RandomTime().Unix(),
+		EndTime:    utils.RandomTime().Add(30 * time.Minute).Unix(),
 		IsEmegency: utils.RandomEmegency(),
 		Owner:      account.ID,
 		Note:       sql.NullString{String: utils.RandomString(12), Valid: true},
@@ -28,8 +28,8 @@ func createRandomEvent(t *testing.T) Event {
 
 	require.NoError(t, err)
 	require.Equal(t, arg.Title, event.Title)
-	require.WithinDuration(t, arg.StartTime, event.StartTime, time.Second)
-	require.WithinDuration(t, arg.EndTime, event.EndTime, time.Second)
+	require.Equal(t, arg.StartTime, event.StartTime)
+	require.Equal(t, arg.EndTime, event.EndTime)
 	require.Equal(t, arg.IsEmegency, event.IsEmegency)
 	require.Equal(t, arg.Owner, event.Owner)
 	require.Equal(t, arg.Note, event.Note)
@@ -54,8 +54,8 @@ func TestGetEvent(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, event1.Title, event.Title)
-	require.WithinDuration(t, event1.StartTime, event.StartTime, time.Second)
-	require.WithinDuration(t, event1.EndTime, event.EndTime, time.Second)
+	require.Equal(t, event1.StartTime, event.StartTime)
+	require.Equal(t, event1.EndTime, event.EndTime)
 	require.Equal(t, event1.IsEmegency, event.IsEmegency)
 	require.Equal(t, event1.Owner, event.Owner)
 	require.Equal(t, event1.Note, event.Note)
@@ -74,8 +74,8 @@ func TestUpdateEvent(t *testing.T) {
 	arg := UpdateEventParams{
 		ID:         event.ID,
 		Title:      sql.NullString{String: utils.RandomString(12), Valid: true},
-		StartTime:  utils.RandomTime(),
-		EndTime:    utils.RandomTime().Add(30 * time.Minute),
+		StartTime:  utils.RandomTime().Unix(),
+		EndTime:    utils.RandomTime().Add(30 * time.Minute).Unix(),
 		IsEmegency: utils.RandomEmegency(),
 		Owner:      account.ID,
 		Note:       sql.NullString{String: utils.RandomString(12), Valid: true},
@@ -88,8 +88,8 @@ func TestUpdateEvent(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, event1.Title, arg.Title)
-	require.WithinDuration(t, event1.StartTime, arg.StartTime, time.Second)
-	require.WithinDuration(t, event1.EndTime, arg.EndTime, time.Second)
+	require.Equal(t, event1.StartTime, arg.StartTime)
+	require.Equal(t, event1.EndTime, arg.EndTime)
 	require.Equal(t, event1.IsEmegency, arg.IsEmegency)
 	require.Equal(t, event1.Owner, arg.Owner)
 	require.Equal(t, event1.Note, arg.Note)
@@ -122,10 +122,10 @@ func TestListEvent(t *testing.T) {
 	}
 
 	arg := ListEventParams{
-		StartTime: time.Now().UTC().AddDate(0, 0, -1),
-		EndTime:   time.Now().UTC().Add(30 * time.Minute),
+		StartTime: time.Now().UTC().AddDate(0, 0, -1).Unix(),
+		EndTime:   time.Now().UTC().Add(30 * time.Minute).Unix(),
 		Limit:     5,
-		Offset:    5,
+		Offset:    0,
 	}
 
 	events, err := testQueries.ListEvent(context.Background(), arg)
