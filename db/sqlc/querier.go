@@ -13,6 +13,7 @@ type Querier interface {
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateLocation(ctx context.Context, arg CreateLocationParams) (Location, error)
 	CreateParticipant(ctx context.Context, arg CreateParticipantParams) (Participant, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int64) error
 	DeleteEvent(ctx context.Context, id int64) error
@@ -20,6 +21,7 @@ type Querier interface {
 	GetAccount(ctx context.Context, id int64) (Account, error)
 	GetEvent(ctx context.Context, id int64) (Event, error)
 	GetLocation(ctx context.Context, event int64) (Location, error)
+	GetSession(ctx context.Context, refreshToken string) (Session, error)
 	GetUser(ctx context.Context, username string) (User, error)
 	ListAccount(ctx context.Context, arg ListAccountParams) ([]Account, error)
 	ListEvent(ctx context.Context, arg ListEventParams) ([]Event, error)
