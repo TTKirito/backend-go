@@ -87,6 +87,55 @@ func TestCreateUser(t *testing.T) {
 	requireBodyMatchUser(t, recorder.Body, user)
 }
 
+func TestLoginUser(t *testing.T) {
+	user, password := randomUser(t)
+
+	testCase := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"username": user.Username,
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUser(gomock.Any(), user.Username).Times(1).Return(user, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+			},
+		},
+	}
+
+	for i := range testCase {
+		tc := testCase[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStubs(store)
+			server := newTestServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			url := "/users/login"
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.route.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+
+}
+
 func randomUser(t *testing.T) (user db.User, password string) {
 	password = utils.RandomString(6)
 

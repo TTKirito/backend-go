@@ -1,19 +1,31 @@
 package api
 
 import (
+	"fmt"
+
 	db "github.com/TTKirito/backend-go/db/sqlc"
+	"github.com/TTKirito/backend-go/token"
+	"github.com/TTKirito/backend-go/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 )
 
 type Server struct {
-	store db.Store
-	route *gin.Engine
+	config     utils.Config
+	store      db.Store
+	route      *gin.Engine
+	tokenMaker token.Maker
 }
 
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config utils.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymetricKey)
+
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker :%v", err)
+	}
+
+	server := &Server{config: config, store: store, tokenMaker: tokenMaker}
 	route := gin.Default()
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -25,6 +37,7 @@ func NewServer(store db.Store) *Server {
 	}
 
 	route.POST("/users", server.createUser)
+	route.POST("/users/login", server.loginUser)
 
 	route.POST("/accounts", server.createAccount)
 	route.GET("/accounts/:id", server.getAccount)
@@ -35,7 +48,7 @@ func NewServer(store db.Store) *Server {
 	route.GET("/events", server.listEvent)
 	server.route = route
 
-	return server
+	return server, nil
 }
 
 func (server *Server) Start(address string) error {
