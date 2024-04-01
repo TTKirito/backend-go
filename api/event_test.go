@@ -14,6 +14,7 @@ import (
 
 	mockdb "github.com/TTKirito/backend-go/db/mock"
 	db "github.com/TTKirito/backend-go/db/sqlc"
+	"github.com/TTKirito/backend-go/token"
 	"github.com/TTKirito/backend-go/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -21,8 +22,9 @@ import (
 )
 
 func TestCreateEventAPI(t *testing.T) {
-	owner := randomAccount()
-	account := randomAccount()
+	user, _ := randomUser(t)
+	owner := randomAccount(user.Username)
+	account := randomAccount(user.Username)
 	event := randomEvent(owner)
 	participants := randomParticipant(account, event)
 	location := randomLocation(event)
@@ -88,6 +90,7 @@ func TestCreateEventAPI(t *testing.T) {
 	testCase := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -105,6 +108,10 @@ func TestCreateEventAPI(t *testing.T) {
 				"meeting":      eventTx.Event.Meeting.String,
 				"participants": eventTx.Participants,
 				"location":     eventTx.Location,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateEventTxParams{
@@ -142,6 +149,10 @@ func TestCreateEventAPI(t *testing.T) {
 				"participants": eventTx.Participants,
 				"location":     eventTx.Location,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateEventTxParams{
 					Title:        eventTx.Event.Title.String,
@@ -176,6 +187,10 @@ func TestCreateEventAPI(t *testing.T) {
 				"meeting":      eventTx.Event.Meeting.String,
 				"participants": eventTx.Participants,
 				"location":     eventTx.Location,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateEventTxParams{
@@ -214,6 +229,7 @@ func TestCreateEventAPI(t *testing.T) {
 
 		request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 		require.NoError(t, err)
+		tc.setupAuth(t, request, server.tokenMaker)
 
 		server.route.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
@@ -221,18 +237,25 @@ func TestCreateEventAPI(t *testing.T) {
 }
 
 func TestGetEventAPI(t *testing.T) {
-	owner := randomAccount()
+	user, _ := randomUser(t)
+
+	owner := randomAccount(user.Username)
 	event := randomEvent(owner)
 
 	testCase := []struct {
 		name          string
 		eventID       int64
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			eventID: event.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetEvent(gomock.Any(), gomock.Eq(event.ID)).Times(1).Return(event, nil)
 			},
@@ -244,6 +267,10 @@ func TestGetEventAPI(t *testing.T) {
 		{
 			name:    "NotFound",
 			eventID: event.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetEvent(gomock.Any(), gomock.Any()).Times(1).Return(db.Event{}, sql.ErrNoRows)
 			},
@@ -254,6 +281,10 @@ func TestGetEventAPI(t *testing.T) {
 		{
 			name:    "InternalError",
 			eventID: event.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetEvent(gomock.Any(), gomock.Any()).Times(1).Return(db.Event{}, sql.ErrConnDone)
 			},
@@ -264,6 +295,10 @@ func TestGetEventAPI(t *testing.T) {
 		{
 			name:    "InvalidID",
 			eventID: 0,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetEvent(gomock.Any(), gomock.Any()).Times(0)
 			},
@@ -286,6 +321,7 @@ func TestGetEventAPI(t *testing.T) {
 
 		request, err := http.NewRequest(http.MethodGet, url, nil)
 		require.NoError(t, err)
+		tc.setupAuth(t, request, server.tokenMaker)
 		server.route.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
 	}
@@ -293,10 +329,12 @@ func TestGetEventAPI(t *testing.T) {
 }
 
 func TestListEventAPI(t *testing.T) {
+	user, _ := randomUser(t)
+
 	n := 5
 	events := make([]db.Event, n)
 	for i := 0; i < n; i++ {
-		events[i] = randomEvent(randomAccount())
+		events[i] = randomEvent(randomAccount(user.Username))
 	}
 
 	type Query struct {
@@ -309,6 +347,7 @@ func TestListEventAPI(t *testing.T) {
 	testCase := []struct {
 		name          string
 		Query         Query
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -319,6 +358,10 @@ func TestListEventAPI(t *testing.T) {
 				PageSize:  n,
 				StartTime: time.Now().UTC().AddDate(0, 0, -1).Unix(),
 				EndTime:   time.Now().UTC().Add(30 * time.Minute).Unix(),
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.ListEventParams{
@@ -359,6 +402,7 @@ func TestListEventAPI(t *testing.T) {
 		q.Add("start_time", fmt.Sprintf("%d", tc.Query.StartTime))
 		q.Add("end_time", fmt.Sprintf("%d", tc.Query.EndTime))
 		request.URL.RawQuery = q.Encode()
+		tc.setupAuth(t, request, server.tokenMaker)
 
 		server.route.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
