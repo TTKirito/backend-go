@@ -14,6 +14,7 @@ type Config struct {
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_SERVER_ADDRESS"`
+	MIGRATION_PATH       string        `mapstructure:"MIGRATION_PATH"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
