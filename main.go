@@ -10,9 +10,11 @@ import (
 	"github.com/TTKirito/backend-go/gapi"
 	"github.com/TTKirito/backend-go/pb"
 	"github.com/TTKirito/backend-go/utils"
+	"github.com/TTKirito/backend-go/worker"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/hibiken/asynq"
 
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -34,8 +36,16 @@ func main() {
 
 	runDBMigration(config.MIGRATION_PATH, config.DBSOURCE)
 	store := db.NewStore(conn)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.REDIS_ADDRESS,
+	}
+
+	taskDistributor := worker.NewRedistaskDistributor(redisOpt)
+
+	go runtaskProcessor(redisOpt, store)
 	go runGinServer(config, store)
-	runGRPCServer(config, store)
+	runGRPCServer(config, store, taskDistributor)
 }
 
 func runDBMigration(migrationPath string, dbSource string) {
@@ -52,8 +62,8 @@ func runDBMigration(migrationPath string, dbSource string) {
 	log.Printf("db migrate succsessfully")
 }
 
-func runGRPCServer(config utils.Config, store db.Store) {
-	server, err := gapi.NewServer(config, store)
+func runGRPCServer(config utils.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(config, store, taskDistributor)
 
 	if err != nil {
 		log.Fatal("cannot start server:", err)
@@ -89,6 +99,15 @@ func runGinServer(config utils.Config, store db.Store) {
 
 	if err != nil {
 		log.Fatal("cannot start server:", err)
+	}
+}
+
+func runtaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
+	taskProcessor := worker.NewRedistaskProcessor(redisOpt, store)
+	log.Printf("start task processor")
+	err := taskProcessor.Start()
+	if err != nil {
+		log.Fatal(taskProcessor)
 	}
 }
 

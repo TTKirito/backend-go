@@ -9,6 +9,7 @@ import (
 type Store interface {
 	Querier
 	CreateEventTx(ctx context.Context, arg CreateEventTxParams) (CreateEventTxResult, error)
+	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 }
 
 type SQLStore struct {
