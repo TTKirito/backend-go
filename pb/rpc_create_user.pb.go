@@ -9,7 +9,6 @@ package pb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	pb "ithub.com/TTKirito/backend-go/pb"
 	reflect "reflect"
 	sync "sync"
 )
@@ -97,7 +96,7 @@ type CreateUserResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	User *pb.User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	User *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 }
 
 func (x *CreateUserResponse) Reset() {
@@ -132,7 +131,7 @@ func (*CreateUserResponse) Descriptor() ([]byte, []int) {
 	return file_rpc_create_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateUserResponse) GetUser() *pb.User {
+func (x *CreateUserResponse) GetUser() *User {
 	if x != nil {
 		return x.User
 	}
@@ -177,7 +176,7 @@ var file_rpc_create_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_rpc_create_user_proto_goTypes = []interface{}{
 	(*CreateUserRequest)(nil),  // 0: pb.CreateUserRequest
 	(*CreateUserResponse)(nil), // 1: pb.CreateUserResponse
-	(*pb.User)(nil),            // 2: pb.User
+	(*User)(nil),               // 2: pb.User
 }
 var file_rpc_create_user_proto_depIdxs = []int32{
 	2, // 0: pb.CreateUserResponse.user:type_name -> pb.User
@@ -193,6 +192,7 @@ func file_rpc_create_user_proto_init() {
 	if File_rpc_create_user_proto != nil {
 		return
 	}
+	file_user_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_rpc_create_user_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CreateUserRequest); i {

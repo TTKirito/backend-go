@@ -4,7 +4,7 @@ import "google/protobuf/timestamp.proto";
 
 package pb;
 
-option go_package = "ithub.com/TTKirito/backend-go/pb";
+option go_package = "github.com/TTKirito/backend-go/pb";
 
 
 
