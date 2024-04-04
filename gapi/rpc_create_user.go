@@ -20,17 +20,17 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, invalidArgument(validations)
 	}
 
-	hashedPassword, err := utils.HashedPassword(req.Password)
+	hashedPassword, err := utils.HashedPassword(req.GetPassword())
 
 	if err != nil {
 		return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 	}
 
 	arg := db.CreateUserParams{
-		Username:       req.Username,
+		Username:       req.GetUsername(),
 		HashedPassword: hashedPassword,
-		FullName:       req.FullName,
-		Email:          req.Email,
+		FullName:       req.GetFullName(),
+		Email:          req.GetEmail(),
 	}
 
 	user, err := server.store.CreateUser(ctx, arg)
@@ -55,16 +55,16 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 }
 
 func validateCreateUserRequest(req *pb.CreateUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
-	if err := val.ValidateUsername(req.Username); err != nil {
+	if err := val.ValidateUsername(req.GetUsername()); err != nil {
 		violations = append(violations, fieldViolation("username", err))
 	}
-	if err := val.ValidateFullName(req.FullName); err != nil {
+	if err := val.ValidateFullName(req.GetFullName()); err != nil {
 		violations = append(violations, fieldViolation("full_name", err))
 	}
-	if err := val.ValidatePassword(req.Password); err != nil {
+	if err := val.ValidatePassword(req.GetPassword()); err != nil {
 		violations = append(violations, fieldViolation("password", err))
 	}
-	if err := val.ValidateEmail(req.Email); err != nil {
+	if err := val.ValidateEmail(req.GetEmail()); err != nil {
 		violations = append(violations, fieldViolation("email", err))
 	}
 

@@ -3,6 +3,7 @@ package gapi
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	db "github.com/TTKirito/backend-go/db/sqlc"
 	"github.com/TTKirito/backend-go/pb"
@@ -21,7 +22,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, invalidArgument(validations)
 	}
 
-	user, err := server.store.GetUser(ctx, req.Username)
+	user, err := server.store.GetUser(ctx, req.GetUsername())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -30,19 +31,19 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.Unimplemented, "cannot get user")
 	}
 
-	err = utils.CheckPassword(req.Password, user.HashedPassword)
+	err = utils.CheckPassword(req.GetPassword(), user.HashedPassword)
 
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "incorect password")
 	}
 
-	accessToken, accessPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.AccessTokenDuration)
+	accessToken, accessPayload, err := server.tokenMaker.CreateToken(req.GetUsername(), server.config.AccessTokenDuration)
 
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot create access token")
 	}
 
-	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.RefreshTokenDuration)
+	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(req.GetUsername(), server.config.RefreshTokenDuration)
 
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot create refresh token")
@@ -51,7 +52,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 	mtdt := server.extractMetadata(ctx)
 	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
 		ID:           refreshPayload.ID,
-		Username:     req.Username,
+		Username:     req.GetUsername(),
 		RefreshToken: refreshToken,
 		UserAgent:    mtdt.UserAgent,
 		ClientIp:     mtdt.ClientIp,
@@ -60,6 +61,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 	})
 
 	if err != nil {
+		fmt.Println(err, "eeeeeeeeeeee")
 		return nil, status.Errorf(codes.Internal, "cannot create session")
 	}
 
@@ -76,11 +78,11 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 }
 
 func validateLoginUserRequest(req *pb.LoginUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
-	if err := val.ValidateUsername(req.Username); err != nil {
+	if err := val.ValidateUsername(req.GetUsername()); err != nil {
 		violations = append(violations, fieldViolation("username", err))
 	}
 
-	if err := val.ValidatePassword(req.Password); err != nil {
+	if err := val.ValidatePassword(req.GetPassword()); err != nil {
 		violations = append(violations, fieldViolation("password", err))
 	}
 
