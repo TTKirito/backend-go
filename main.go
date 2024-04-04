@@ -36,3 +36,5 @@ func main() {
 		log.Fatal("cannot start server:", err)
 	}
 }
+
+// export PATH="$PATH:$(go env GOPATH)/bin"
